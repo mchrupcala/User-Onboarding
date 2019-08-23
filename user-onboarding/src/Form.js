@@ -3,7 +3,7 @@ import { Form, Field, withFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 
-const UserForm = ({ errors, status, values, touched, isSubmitting }) => {
+const UserForm = ({ errors, status, values, touched }) => {
   const [users, setUsers] = useState([]);
   useEffect(() => {
     if (status) {
@@ -16,14 +16,15 @@ const UserForm = ({ errors, status, values, touched, isSubmitting }) => {
       {/* <Formik> */}
       <Form>
         <br />
-        <div>
+          <Field name="fullname" type="text" placeholder="Full Name" />
           {touched.fullname && errors.fullname && (
             <p className="error">{errors.fullname}</p>
-          )}
-          <Field name="fullname" type="text" placeholder="Full Name" />
-        </div>
+            )}
         <br />
         <Field name="email" type="email" placeholder="Email address" />
+         {touched.email && errors.email && (
+            <p className="error">{errors.email}</p>
+        )}
         <br />
 
         <Field
@@ -31,6 +32,9 @@ const UserForm = ({ errors, status, values, touched, isSubmitting }) => {
           type="password"
           placeholder="Enter Your Password"
         />
+            {touched.password && errors.password && (
+            <p className="error">{errors.password}</p>
+        )}
         <br />
 
         <label>
@@ -40,7 +44,7 @@ const UserForm = ({ errors, status, values, touched, isSubmitting }) => {
         </label>
         <br />
 
-        <button className="button" type="submit" disabled={isSubmitting}>
+        <button className="button" type="submit">
           Click to Submit
         </button>
       </Form>
@@ -67,13 +71,15 @@ const FormikLogin = withFormik({
   },
 
   validationSchema: Yup.object().shape({
-    fullname: Yup.string(),
+    fullname: Yup.string()
+        .required("Please enter your name.")
+        .min(1),
     email: Yup.string()
-      .email("Email is required.")
-      .required("Email is required."),
+      .email("Please enter your email address.")
+      .required("Please enter your email address."),
     password: Yup.string()
       .min(8)
-      .required("Password is required.")
+      .required("Please enter your password.")
   }),
 
   handleSubmit(values, { setStatus }) {
@@ -81,7 +87,6 @@ const FormikLogin = withFormik({
       .post("https://reqres.in/api/users", values)
       .then(res => {
         console.log(res);
-        console.log("hey");
         setStatus(res.data);
         // setStatus(res.data)
       })
